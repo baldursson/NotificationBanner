@@ -80,7 +80,7 @@ open class BaseNotificationBanner: UIView {
         didSet {
             if !autoDismiss {
                 dismissOnTap = false
-                dismissOnSwipeUp = false
+                dismissOnSwipe = false
             }
         }
     }
@@ -104,13 +104,13 @@ open class BaseNotificationBanner: UIView {
     public var dismissOnTap: Bool = true
 
     /// If true, notification will dismissed when swiped up
-    public var dismissOnSwipeUp: Bool = true
+    public var dismissOnSwipe: Bool = true
 
     /// Closure that will be executed if the notification banner is tapped
     public var onTap: (() -> Void)?
 
-    /// Closure that will be executed if the notification banner is swiped up
-    public var onSwipeUp: (() -> Void)?
+    /// Closure that will be executed if the notification banner is swiped in the direction it appeared
+    public var onSwipe: (() -> Void)?
 
     /// Responsible for positioning and auto managing notification banners
     public var bannerQueue: NotificationBannerQueue = NotificationBannerQueue.default
@@ -210,6 +210,10 @@ open class BaseNotificationBanner: UIView {
         let swipeUpGesture = UISwipeGestureRecognizer(target: self, action: #selector(onSwipeUpGestureRecognizer))
         swipeUpGesture.direction = .up
         addGestureRecognizer(swipeUpGesture)
+
+        let swipeDownGesture = UISwipeGestureRecognizer(target: self, action: #selector(onSwipeDownGestureRecognizer))
+        swipeDownGesture.direction = .down
+        addGestureRecognizer(swipeDownGesture)
     }
 
     required public init?(coder aDecoder: NSCoder) {
@@ -536,10 +540,11 @@ open class BaseNotificationBanner: UIView {
         Called when a notification banner is tapped
     */
     @objc private dynamic func onTapGestureRecognizer() {
-        if dismissOnTap {
-            dismiss()
+        guard dismissOnTap else {
+            return
         }
 
+        dismiss()
         onTap?()
     }
 
@@ -547,11 +552,21 @@ open class BaseNotificationBanner: UIView {
         Called when a notification banner is swiped up
     */
     @objc private dynamic func onSwipeUpGestureRecognizer() {
-        if dismissOnSwipeUp {
-            dismiss()
+        guard let position = bannerPosition, position == .top, dismissOnSwipe else {
+            return
         }
 
-        onSwipeUp?()
+        dismiss()
+        onSwipe?()
+    }
+
+    @objc private dynamic func onSwipeDownGestureRecognizer() {
+        guard let position = bannerPosition, position == .bottom, dismissOnSwipe else {
+            return
+        }
+
+        dismiss()
+        onSwipe?()
     }
 
 
