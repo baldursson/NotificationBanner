@@ -591,13 +591,21 @@ open class BaseNotificationBanner: UIView {
      */
 
     internal func shouldAdjustForNotchFeaturedIphone() -> Bool {
+        guard NotificationBannerUtilities.isNotchFeaturedIPhone() && UIApplication.shared.statusBarOrientation.isPortrait else {
+            return false
+        }
+
+        if let parent = parentViewController, let position = bannerPosition,
+            (position == .top && parent.view.frame.minY > appWindow?.frame.minY ?? UIScreen.main.bounds.minY) ||
+                (position == .bottom && parent.view.frame.maxY < appWindow?.frame.maxY ?? UIScreen.main.bounds.maxY) {
+            return false
+        }
+
         if parentViewController is UITabBarController, let position = bannerPosition, position == .bottom {
             return false
         }
 
-        return NotificationBannerUtilities.isNotchFeaturedIPhone()
-            && UIApplication.shared.statusBarOrientation.isPortrait
-            && (self.parentViewController?.navigationController?.isNavigationBarHidden ?? true)
+        return true
     }
     /**
         Updates the scrolling marquee label duration
