@@ -467,28 +467,15 @@ open class BaseNotificationBanner: UIView {
         Changes the frame of the notification banner when the orientation of the device changes
     */
     @objc private dynamic func onOrientationChanged() {
-        guard let window = appWindow else { return }
-
-        updateSpacerViewHeight()
-
-        let edgeInsets = bannerEdgeInsets ?? .zero
         guard UIDevice.current.orientation.rawValue == UIApplication.shared.statusBarOrientation.rawValue else {
             // The interface does not support the current device orientation, leave things as is
             return
         }
 
-        let newY = (bannerPosition == .top) ? (frame.origin.y) : (window.height - bannerHeight + edgeInsets.top - edgeInsets.bottom)
-        frame = CGRect(x: frame.origin.x,
-                       y: newY,
-                       width: window.width - edgeInsets.left - edgeInsets.right,
-                       height: bannerHeight)
+        updateSpacerViewHeight()
+        updateBannerPositionFrames()
 
-        bannerPositionFrame = BannerPositionFrame(bannerPosition: bannerPosition,
-                                                  bannerWidth: window.width,
-                                                  bannerHeight: bannerHeight,
-                                                  maxY: maximumYPosition(),
-                                                  finishYOffset: finishBannerYOffset(),
-                                                  edgeInsets: bannerEdgeInsets)
+        self.frame = bannerPositionFrame.endFrame
     }
 
     /**
