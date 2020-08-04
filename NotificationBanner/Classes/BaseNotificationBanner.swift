@@ -472,6 +472,10 @@ open class BaseNotificationBanner: UIView {
         updateSpacerViewHeight()
 
         let edgeInsets = bannerEdgeInsets ?? .zero
+        guard UIDevice.current.orientation.rawValue == UIApplication.shared.statusBarOrientation.rawValue else {
+            // The interface does not support the current device orientation, leave things as is
+            return
+        }
 
         let newY = (bannerPosition == .top) ? (frame.origin.y) : (window.height - bannerHeight + edgeInsets.top - edgeInsets.bottom)
         frame = CGRect(x: frame.origin.x,
