@@ -154,7 +154,10 @@ open class BaseNotificationBanner: UIView {
             return UIApplication.shared.connectedScenes
                 .first { $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive }
                 .map { $0 as? UIWindowScene }
-                .map { $0?.windows.first } ?? UIApplication.shared.delegate?.window! ?? UIApplication.shared.keyWindow
+                .map { $0?.windows.first }
+            ?? UIApplication.shared.delegate?.window!
+            ?? UIApplication.shared.keyWindow
+            ?? UIApplication.shared.windows.filter { $0.isKeyWindow }.first
         }
 
         return UIApplication.shared.delegate?.window ?? nil
@@ -344,6 +347,11 @@ open class BaseNotificationBanner: UIView {
         self.bannerPosition = bannerPosition
         createBannerConstraints(for: bannerPosition)
         updateBannerPositionFrames()
+        
+        guard bannerPositionFrame != nil else {
+            assertionFailure("bannerPositionFrame is nil")
+            return
+        }
 
         NotificationCenter.default.removeObserver(self,
                                                   name: UIDevice.orientationDidChangeNotification,
