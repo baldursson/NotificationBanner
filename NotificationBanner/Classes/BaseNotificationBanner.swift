@@ -52,6 +52,22 @@ open class BaseNotificationBanner: UIView {
     /// The style of the notification banner
     public let style: BannerStyle
 
+    /// The width of the banner when it is presented
+    public var bannerWidth: CGFloat {
+        get {
+            if let customBannerWidth = customBannerWidth {
+                return customBannerWidth
+            } else {
+                guard let window = appWindow else {
+                    return UIScreen.main.bounds.width
+                }
+                return window.width
+            }
+        } set {
+            customBannerWidth = newValue
+        }
+    }
+
     /// The height of the banner when it is presented
     public var bannerHeight: CGFloat {
         get {
@@ -142,6 +158,9 @@ open class BaseNotificationBanner: UIView {
     /// The view controller to display the banner on. This is useful if you are wanting to display a banner underneath a navigation bar
     internal weak var parentViewController: UIViewController?
 
+    /// If this is not nil, then this width will be used instead of the auto calculated width
+    internal var customBannerWidth: CGFloat?
+    
     /// If this is not nil, then this height will be used instead of the auto calculated height
     internal var customBannerHeight: CGFloat?
 
@@ -291,9 +310,8 @@ open class BaseNotificationBanner: UIView {
     }
 
     internal func updateBannerPositionFrames() {
-        guard let window = appWindow else { return }
         bannerPositionFrame = BannerPositionFrame(bannerPosition: bannerPosition,
-                                                  bannerWidth: window.width,
+                                                  bannerWidth: bannerWidth,
                                                   bannerHeight: bannerHeight,
                                                   maxY: maximumYPosition(),
                                                   finishYOffset: finishBannerYOffset(),
